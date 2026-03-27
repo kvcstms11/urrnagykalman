@@ -1,617 +1,455 @@
 <!DOCTYPE html>
 <html lang="hu">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Urr Nagy Kálmán — Egyetemes Jogok · Nyelvoktatás · Zongora</title>
-  <meta name="description" content="Urr Nagy Kálmán — angol-magyar nyelvoktatás, szinkrontolmácsolás, fordítás, klasszikus zongoraoktatás és az Egyetemes Jogok sorozat.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Source+Sans+3:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Urr Nagy Kálmán — Egyetemes Jogok · Nyelvoktatás · Zongora</title>
+<meta name="description" content="Urr Nagy Kálmán — angol-magyar nyelvoktatás, fordítás, klasszikus zongoraoktatás és az Egyetemes Jogok sorozat.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--gold:#d4a843;--gold-dim:rgba(212,168,67,.45);--blue:#6eaae8;--deep:#050510;--text:#d8d4e4;--dim:#908ca6;--glass:rgba(8,8,24,.78);--gb:rgba(255,255,255,.07)}
+html,body{height:100%;overflow:hidden;font-family:'Cormorant Garamond',serif;color:var(--text);background:var(--deep);-webkit-font-smoothing:antialiased}
 
-    :root {
-      --gold: #d4a843;
-      --gold-dim: rgba(212,168,67,0.5);
-      --gold-glow: rgba(212,168,67,0.2);
-      --blue: #6eaae8;
-      --card: rgba(8,8,20,0.82);
-      --card-border: rgba(255,255,255,0.08);
-      --text: #d4d0e0;
-      --dim: #8a86a0;
-    }
+/* STARFIELD */
+#stars{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0}
 
-    html { scroll-behavior: smooth; }
+/* ========== SOLAR SYSTEM (main horizontal view) ========== */
+#solar{position:fixed;top:0;left:0;width:100%;height:100%;z-index:10;display:flex;align-items:center;overflow-x:auto;overflow-y:hidden;scroll-behavior:smooth;transition:opacity .5s,transform .5s}
+#solar.hidden{opacity:0;pointer-events:none;transform:scale(1.05)}
+#solar::-webkit-scrollbar{height:6px}
+#solar::-webkit-scrollbar-track{background:transparent}
+#solar::-webkit-scrollbar-thumb{background:rgba(212,168,67,.2);border-radius:3px}
 
-    body {
-      font-family: 'Source Sans 3', sans-serif;
-      color: var(--text);
-      background: #050510;
-      line-height: 1.7;
-      font-weight: 300;
-      -webkit-font-smoothing: antialiased;
-    }
+.orbit-track{display:flex;align-items:center;height:100%;padding:0 6vw;gap:0;flex-shrink:0}
 
-    /* === SPACE BACKGROUND === */
-    .space-bg {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      z-index: -1;
-      background: url('header.jpg') top center / cover no-repeat;
-      /* parallax-like: the content scrolls over the fixed bg */
-    }
-    /* Dark gradient at the bottom of viewport so text is readable when scrolled */
-    .space-bg::after {
-      content: '';
-      position: fixed;
-      bottom: 0; left: 0; right: 0;
-      height: 40vh;
-      background: linear-gradient(to top, rgba(5,5,16,0.95) 0%, transparent 100%);
-      pointer-events: none;
-    }
+/* Each planet slot */
+.slot{display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;flex-shrink:0;transition:transform .3s}
+.slot:hover{transform:scale(1.08)}
 
-    /* === NAV === */
-    nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
-      background: rgba(5,5,16,0.7);
-      backdrop-filter: blur(14px);
-      border-bottom: 1px solid var(--card-border);
-    }
-    .nav-inner {
-      max-width: 1100px; margin: 0 auto;
-      padding: 0.6rem 1.5rem;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .nav-name {
-      font-family: 'Cinzel', serif;
-      font-size: 0.9rem; font-weight: 700;
-      color: var(--gold);
-      text-decoration: none;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-    }
-    .nav-links { display: flex; gap: 1.4rem; flex-wrap: wrap; }
-    .nav-links a {
-      text-decoration: none; color: var(--dim);
-      font-size: 0.75rem; font-weight: 600;
-      text-transform: uppercase; letter-spacing: 0.07em;
-      transition: color 0.2s;
-    }
-    .nav-links a:hover { color: var(--gold); }
-    .menu-toggle { display: none; background: none; border: none; cursor: pointer; padding: 0.5rem; }
-    .menu-toggle span { display: block; width: 20px; height: 2px; background: var(--text); margin: 4px 0; }
+/* Orbit line connecting planets */
+.orbit-line{width:80px;height:1px;background:linear-gradient(to right,transparent,rgba(255,255,255,.06),transparent);flex-shrink:0}
+.orbit-line.wide{width:120px}
+.orbit-line.xwide{width:160px}
 
-    @media (max-width: 700px) {
-      .menu-toggle { display: block; }
-      .nav-links {
-        display: none; flex-direction: column; gap: 0;
-        position: absolute; top: 100%; left: 0; right: 0;
-        background: rgba(5,5,16,0.95); border-bottom: 1px solid var(--card-border);
-      }
-      .nav-links.open { display: flex; }
-      .nav-links a { padding: 0.8rem 1.5rem; border-top: 1px solid var(--card-border); }
-    }
+/* Tooltip on hover */
+.slot .tip{position:absolute;bottom:calc(100% + 0px);left:50%;transform:translateX(-50%) translateY(8px);background:rgba(5,5,16,.92);border:1px solid var(--gold);color:var(--gold);font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;padding:.3rem .7rem;border-radius:3px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:20}
+.slot .tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--gold)}
+.slot:hover .tip{opacity:1;transform:translateX(-50%) translateY(0)}
 
-    /* === HERO / PLANET MAP === */
-    .hero {
-      position: relative;
-      width: 100%;
-      height: 100vh;
-      min-height: 500px;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      align-items: center;
-    }
+/* "click me" subtle hint */
+.slot .click-hint{position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);font-size:.6rem;color:var(--dim);letter-spacing:.06em;opacity:0;transition:opacity .25s;white-space:nowrap;font-family:'Cinzel',serif}
+.slot:hover .click-hint{opacity:.6}
 
-    /* Planet hotspots — positioned over the fixed bg */
-    .planets-layer {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      /* match the image aspect ratio 1900:800 = 2.375 */
-      height: calc(100vw / 2.375);
-      max-height: 100vh;
-      z-index: 10;
-      pointer-events: none;
-      transition: opacity 0.4s;
-    }
-    .planets-layer.hidden { opacity: 0; }
-    .planet {
-      position: absolute;
-      border-radius: 50%;
-      cursor: pointer;
-      pointer-events: all;
-      transition: transform 0.3s ease;
-      z-index: 11;
-      text-decoration: none;
-    }
-    .planet::after {
-      content: '';
-      position: absolute;
-      inset: -4px;
-      border-radius: 50%;
-      border: 1.5px solid transparent;
-      transition: border-color 0.3s, box-shadow 0.3s;
-    }
-    .planet:hover { transform: scale(1.18); }
-    .planet:hover::after {
-      border-color: var(--gold);
-      box-shadow: 0 0 20px var(--gold-glow), 0 0 50px rgba(212,168,67,0.08);
-    }
+/* Title overlay */
+.solar-title{position:fixed;bottom:2.5rem;left:50%;transform:translateX(-50%);z-index:15;text-align:center;pointer-events:none}
+.solar-title h1{font-family:'Cinzel',serif;font-size:clamp(1rem,3vw,1.6rem);font-weight:700;color:#fff;letter-spacing:.12em;text-transform:uppercase;text-shadow:0 2px 20px rgba(0,0,0,.6)}
+.solar-title h1 span{color:var(--gold)}
+.solar-title p{font-size:.75rem;color:var(--dim);letter-spacing:.15em;text-transform:uppercase;margin-top:.2rem}
 
-    /* tooltip */
-    .planet .tip {
-      position: absolute;
-      bottom: calc(100% + 10px);
-      left: 50%;
-      transform: translateX(-50%) translateY(5px);
-      background: rgba(5,5,16,0.92);
-      border: 1px solid var(--gold);
-      color: var(--gold);
-      font-family: 'Cinzel', serif;
-      font-size: 0.65rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      padding: 0.25rem 0.55rem;
-      border-radius: 3px;
-      white-space: nowrap;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s, transform 0.2s;
-    }
-    .planet .tip::after {
-      content: '';
-      position: absolute; top: 100%; left: 50%;
-      transform: translateX(-50%);
-      border: 4px solid transparent;
-      border-top-color: var(--gold);
-    }
-    .planet:hover .tip { opacity: 1; transform: translateX(-50%) translateY(0); }
+/* Scroll hint arrows */
+.scroll-arrows{position:fixed;top:50%;right:1.5rem;transform:translateY(-50%);z-index:15;display:flex;flex-direction:column;gap:4px;opacity:.3;animation:pulse-arr 2s ease-in-out infinite}
+.scroll-arrows div{width:12px;height:12px;border-right:2px solid var(--gold);border-bottom:2px solid var(--gold);transform:rotate(-45deg)}
+@keyframes pulse-arr{0%,100%{opacity:.2;transform:translateY(-50%) translateX(0)}50%{opacity:.5;transform:translateY(-50%) translateX(4px)}}
 
-    @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(212,168,67,0.3)} 50%{box-shadow:0 0 0 6px rgba(212,168,67,0)} }
-    .planet { animation: pulse 3s ease-in-out infinite; }
-    .planet:nth-child(2){animation-delay:.3s} .planet:nth-child(3){animation-delay:.6s}
-    .planet:nth-child(4){animation-delay:.9s} .planet:nth-child(5){animation-delay:1.2s}
-    .planet:nth-child(6){animation-delay:1.5s} .planet:nth-child(7){animation-delay:1.8s}
-    .planet:nth-child(8){animation-delay:2.1s} .planet:nth-child(9){animation-delay:2.4s}
-    .planet:nth-child(10){animation-delay:2.7s}
+/* ========== SUBPAGE (planet detail) ========== */
+.subpage{position:fixed;top:0;left:0;width:100%;height:100%;z-index:100;overflow-y:auto;opacity:0;pointer-events:none;transform:translateY(30px);transition:opacity .45s ease,transform .45s ease;background:transparent}
+.subpage.active{opacity:1;pointer-events:all;transform:translateY(0)}
+.subpage-inner{min-height:100%;display:flex;align-items:center;justify-content:center;padding:4rem 1.5rem}
+.subpage-card{max-width:720px;width:100%;background:var(--glass);backdrop-filter:blur(16px);border:1px solid var(--gb);border-radius:12px;padding:2.5rem;position:relative}
 
-    /* Hero text overlay */
-    .hero-content {
-      text-align: center;
-      padding: 0 1.5rem 3rem;
-      z-index: 20;
-      position: relative;
-    }
-    .hero-content h1 {
-      font-family: 'Cinzel', serif;
-      font-size: clamp(1.5rem, 4.5vw, 2.6rem);
-      font-weight: 700; color: #fff;
-      letter-spacing: 0.1em; text-transform: uppercase;
-      text-shadow: 0 2px 30px rgba(0,0,0,0.7);
-    }
-    .hero-content h1 span { color: var(--gold); }
-    .hero-content .sub {
-      margin-top: 0.3rem; font-size: 0.88rem;
-      color: var(--dim); letter-spacing: 0.12em;
-      text-transform: uppercase;
-    }
-    .hero-content .hint {
-      margin-top: 1rem; font-size: 0.72rem;
-      color: var(--gold-dim); letter-spacing: 0.04em;
-    }
-    .scroll-arrow {
-      margin-top: 1rem; display: inline-block;
-      animation: bounce 2s ease-in-out infinite;
-      color: var(--gold-dim); font-size: 1.4rem;
-      text-decoration: none;
-    }
-    @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(8px)} }
+/* Back button */
+.back-btn{position:fixed;top:1.2rem;left:1.5rem;z-index:200;display:none;align-items:center;gap:.5rem;background:rgba(5,5,16,.7);backdrop-filter:blur(10px);border:1px solid var(--gb);border-radius:6px;padding:.5rem 1rem;color:var(--gold);font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:background .2s}
+.back-btn:hover{background:rgba(212,168,67,.1)}
+.back-btn.show{display:flex}
+.back-btn svg{width:14px;height:14px;fill:var(--gold)}
 
-    /* === CONTENT SECTIONS — floating cards over space === */
-    .content-wrap {
-      position: relative;
-      z-index: 50;
-      /* gradient overlay so cards are readable */
-      background: linear-gradient(to bottom,
-        transparent 0%,
-        rgba(5,5,16,0.6) 2%,
-        rgba(5,5,16,0.85) 8%,
-        rgba(5,5,16,0.92) 20%
-      );
-    }
+/* Subpage content */
+.sp h2{font-family:'Cinzel',serif;font-size:1.5rem;font-weight:700;color:#fff;letter-spacing:.05em}
+.sp h2 small{display:block;font-family:'Cormorant Garamond',serif;font-size:.82rem;font-weight:300;color:var(--gold);letter-spacing:.12em;text-transform:uppercase;margin-top:.2rem;font-style:italic}
+.sp .line{width:45px;height:2px;background:var(--gold);margin:.8rem 0 1.2rem}
+.sp p{margin-bottom:.8rem;font-size:1.05rem;line-height:1.7}
+.sp strong{color:var(--gold)}
+.sp em{color:var(--blue);font-style:italic}
+.sp .ib{background:rgba(212,168,67,.06);border-left:3px solid var(--gold);padding:.8rem 1.1rem;border-radius:0 6px 6px 0;margin-top:.8rem;font-size:.95rem}
 
-    section {
-      padding: 3.5rem 1.5rem;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-    section + section { padding-top: 1rem; }
+/* Portrait */
+.sp .iflex{display:flex;gap:1.5rem;align-items:flex-start}
+.sp .iport{width:150px;height:190px;flex-shrink:0;object-fit:cover;object-position:top;border-radius:6px;border:2px solid rgba(212,168,67,.2)}
+@media(max-width:600px){.sp .iflex{flex-direction:column;align-items:center;text-align:center}.sp .iport{width:130px;height:165px}}
 
-    .card {
-      background: var(--card);
-      backdrop-filter: blur(8px);
-      border: 1px solid var(--card-border);
-      border-radius: 8px;
-      padding: 2rem 2rem;
-      margin-bottom: 1.5rem;
-    }
-    .card-header {
-      display: flex; align-items: center; gap: 0.8rem;
-      margin-bottom: 1.2rem;
-    }
-    .card-planet {
-      font-size: 1.6rem; line-height: 1;
-    }
-    .card h2 {
-      font-family: 'Cinzel', serif;
-      font-size: 1.25rem; font-weight: 700;
-      color: #fff; letter-spacing: 0.05em;
-    }
-    .card h2 small {
-      display: block; font-family: 'Source Sans 3', sans-serif;
-      font-size: 0.7rem; font-weight: 600; color: var(--gold);
-      letter-spacing: 0.1em; text-transform: uppercase;
-      margin-top: 0.15rem;
-    }
-    .card-line {
-      width: 40px; height: 2px; background: var(--gold);
-      margin-bottom: 1rem;
-    }
-    .card p { margin-bottom: 0.8rem; font-size: 0.95rem; }
-    .card strong { color: var(--gold); }
+/* PDF grid */
+.sp .pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:.5rem;margin-top:.8rem}
+.sp .pdfl{display:flex;align-items:center;gap:.6rem;padding:.55rem .7rem;background:rgba(255,255,255,.03);border:1px solid var(--gb);border-radius:4px;text-decoration:none;color:var(--text);transition:border-color .2s,background .2s}
+.sp .pdfl:hover{border-color:rgba(212,168,67,.25);background:rgba(255,255,255,.06)}
+.sp .pico{width:26px;height:26px;flex-shrink:0;background:rgba(212,168,67,.1);border-radius:4px;display:flex;align-items:center;justify-content:center}
+.sp .pico svg{width:13px;height:13px;fill:var(--gold)}
+.sp .pico.b{background:rgba(110,170,232,.1)}.sp .pico.b svg{fill:var(--blue)}
+.sp .pfn{font-size:.82rem;font-weight:600;line-height:1.25}
+.sp .pfm{font-size:.65rem;color:var(--dim)}
 
-    /* Portrait in intro card */
-    .intro-flex {
-      display: flex; gap: 1.8rem; align-items: flex-start;
-    }
-    .intro-portrait {
-      width: 160px; height: 200px; flex-shrink: 0;
-      object-fit: cover; object-position: top center;
-      border-radius: 4px;
-      border: 2px solid rgba(212,168,67,0.2);
-    }
-    @media (max-width: 600px) {
-      .intro-flex { flex-direction: column; align-items: center; text-align: center; }
-      .intro-portrait { width: 140px; height: 170px; }
-    }
+/* Contact */
+.sp .crow{display:flex;gap:2rem;flex-wrap:wrap;margin-top:.8rem}
+.sp .citem{display:flex;align-items:center;gap:.6rem}
+.sp .cico{width:32px;height:32px;flex-shrink:0;background:rgba(212,168,67,.08);border-radius:50%;display:flex;align-items:center;justify-content:center}
+.sp .cico svg{width:14px;height:14px;fill:var(--gold)}
+.sp .clbl{font-size:.65rem;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;font-family:'Cinzel',serif}
+.sp .ctxt{font-size:.95rem}
 
-    /* Info box */
-    .info-box {
-      background: rgba(212,168,67,0.06);
-      border-left: 3px solid var(--gold);
-      padding: 0.8rem 1.1rem;
-      border-radius: 0 4px 4px 0;
-      margin-top: 0.5rem;
-      font-size: 0.9rem;
-    }
+/* ===== PLANETS CSS ===== */
+/* Sun */
+.sun-w{width:220px;height:220px;position:relative;flex-shrink:0;margin-right:-20px}
+.sun-core{position:absolute;inset:18%;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff 0%,#ffe566 15%,#ffaa00 40%,#ff6600 70%,#cc3300 100%);box-shadow:0 0 60px 20px rgba(255,170,0,.5),0 0 120px 60px rgba(255,100,0,.25),0 0 200px 100px rgba(255,60,0,.1);animation:sp 4s ease-in-out infinite}
+@keyframes sp{0%,100%{transform:scale(1);box-shadow:0 0 60px 20px rgba(255,170,0,.5),0 0 120px 60px rgba(255,100,0,.25)}50%{transform:scale(1.03);box-shadow:0 0 80px 30px rgba(255,170,0,.6),0 0 150px 80px rgba(255,100,0,.3)}}
+.sun-corona{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle,transparent 28%,rgba(255,150,0,.08) 48%,rgba(255,100,0,.04) 68%,transparent 80%);animation:scr 20s linear infinite}
+@keyframes scr{to{transform:rotate(360deg)}}
+.sun-plasma{position:absolute;inset:8%;border-radius:50%;overflow:hidden}
+.sun-plasma::before,.sun-plasma::after{content:'';position:absolute;border-radius:50%;mix-blend-mode:screen;animation:pd 8s ease-in-out infinite}
+.sun-plasma::before{width:80%;height:80%;top:10%;left:5%;background:radial-gradient(ellipse at 40% 30%,rgba(255,230,100,.3),transparent 60%)}
+.sun-plasma::after{width:60%;height:70%;bottom:5%;right:0;background:radial-gradient(ellipse at 60% 70%,rgba(255,160,50,.25),transparent 55%);animation-delay:3s;animation-direction:reverse}
+@keyframes pd{0%,100%{transform:translate(0,0) rotate(0)}33%{transform:translate(5%,-3%) rotate(5deg)}66%{transform:translate(-3%,4%) rotate(-3deg)}}
+.sun-flare{position:absolute;border-radius:50%;animation:fl 3s ease-in-out infinite}
+.sun-flare:nth-child(4){width:10px;height:10px;top:15%;left:12%;background:rgba(255,200,50,.7);animation-duration:2.5s}
+.sun-flare:nth-child(5){width:7px;height:7px;top:58%;right:10%;background:rgba(255,150,30,.6);animation-duration:3.5s;animation-delay:.5s}
+.sun-flare:nth-child(6){width:9px;height:9px;bottom:22%;left:28%;background:rgba(255,220,100,.5);animation-duration:4s;animation-delay:1s}
+@keyframes fl{0%,100%{opacity:.3;transform:scale(.8)}50%{opacity:1;transform:scale(1.5)}}
 
-    /* Services grid */
-    .services-row {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;
-    }
-    .svc-item {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid var(--card-border);
-      border-radius: 6px;
-      padding: 1.2rem;
-      transition: border-color 0.3s;
-    }
-    .svc-item:hover { border-color: rgba(212,168,67,0.2); }
-    .svc-item h3 {
-      font-family: 'Cinzel', serif;
-      font-size: 0.95rem; color: var(--gold);
-      margin-bottom: 0.3rem; letter-spacing: 0.03em;
-    }
-    .svc-item p { font-size: 0.88rem; color: var(--dim); }
-    .svc-icon { font-size: 1.5rem; margin-bottom: 0.5rem; display: block; }
+/* Mini versions for solar system view */
+.p-mercury{width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#c2b8a8,#8a8078 50%,#5a5248);box-shadow:inset -4px -2px 6px rgba(0,0,0,.5),0 0 12px rgba(140,130,120,.15)}
+.p-venus{width:42px;height:42px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#f0dca0,#d4a850 45%,#a07830);box-shadow:inset -5px -3px 8px rgba(0,0,0,.4),0 0 18px rgba(210,170,80,.15)}
+.p-earth{width:46px;height:46px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#6ebef0,#2878c0 40%,#185a90 70%,#0c3060);box-shadow:inset -5px -3px 8px rgba(0,0,0,.45),0 0 18px rgba(80,160,255,.15);overflow:hidden;position:relative}
+.p-earth::before{content:'';position:absolute;width:16px;height:10px;background:rgba(60,140,60,.45);border-radius:50%;top:30%;left:22%;transform:rotate(-15deg)}
+.p-earth::after{content:'';position:absolute;width:10px;height:14px;background:rgba(60,140,60,.35);border-radius:50%;top:48%;left:55%;transform:rotate(20deg)}
+.p-mars{width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#e08850,#c05030 50%,#802818);box-shadow:inset -4px -2px 7px rgba(0,0,0,.5),0 0 14px rgba(200,80,50,.15)}
+.p-jupiter{width:82px;height:82px;border-radius:50%;background:radial-gradient(circle at 38% 35%,#f0d8a0,#d4a860 30%,#b08040 50%,#906830 70%,#705020);box-shadow:inset -10px -5px 15px rgba(0,0,0,.4),0 0 30px rgba(180,140,80,.1);overflow:hidden;position:relative}
+.p-jupiter::before{content:'';position:absolute;left:-5%;width:110%;height:8%;top:50%;background:rgba(160,100,50,.45);border-radius:50%}
+.p-jupiter::after{content:'';position:absolute;width:12px;height:9px;border-radius:50%;background:radial-gradient(ellipse,#d04020,#a03010);top:54%;left:56%}
+.p-saturn-w{position:relative;width:110px;height:70px;display:flex;align-items:center;justify-content:center}
+.p-saturn{width:60px;height:60px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#f5e8c0,#d4b878 40%,#b09050 70%,#887040);box-shadow:inset -8px -4px 12px rgba(0,0,0,.4),0 0 24px rgba(200,170,100,.1);position:relative;z-index:2}
+.p-saturn-ring{position:absolute;width:110px;height:26px;top:50%;left:50%;transform:translate(-50%,-50%) rotateX(75deg);border-radius:50%;border:6px solid transparent;border-color:rgba(200,180,140,.3) rgba(180,160,120,.2);z-index:1}
+.p-uranus{width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 38% 35%,#c8f0f8,#78d0e0 40%,#48a8c0 70%,#2880a0);box-shadow:inset -5px -3px 8px rgba(0,0,0,.35),0 0 18px rgba(100,200,220,.12)}
+.p-neptune{width:42px;height:42px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#6090e0,#3060c0 45%,#1840a0 70%,#102080);box-shadow:inset -5px -3px 8px rgba(0,0,0,.45),0 0 18px rgba(50,80,200,.15)}
+.p-pluto{width:18px;height:18px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#d8d0c8,#a8a098 50%,#787068);box-shadow:inset -3px -2px 5px rgba(0,0,0,.4),0 0 8px rgba(150,140,130,.1)}
 
-    /* PDF list */
-    .pdf-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 0.6rem;
-    }
-    .pdf-link {
-      display: flex; align-items: center; gap: 0.7rem;
-      padding: 0.6rem 0.8rem;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid var(--card-border);
-      border-radius: 4px;
-      text-decoration: none; color: var(--text);
-      transition: border-color 0.2s, background 0.2s;
-    }
-    .pdf-link:hover { border-color: rgba(212,168,67,0.25); background: rgba(255,255,255,0.05); }
-    .pdf-ico {
-      width: 28px; height: 28px; flex-shrink: 0;
-      background: rgba(212,168,67,0.1);
-      border-radius: 4px;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .pdf-ico svg { width: 14px; height: 14px; fill: var(--gold); }
-    .pdf-ico.blue { background: rgba(110,170,232,0.1); }
-    .pdf-ico.blue svg { fill: var(--blue); }
-    .pdf-name { font-size: 0.82rem; font-weight: 600; line-height: 1.25; }
-    .pdf-meta { font-size: 0.68rem; color: var(--dim); }
-
-    /* Contact */
-    .contact-row { display: flex; gap: 2rem; flex-wrap: wrap; }
-    .contact-item { display: flex; align-items: center; gap: 0.7rem; }
-    .ci-icon {
-      width: 34px; height: 34px; flex-shrink: 0;
-      background: rgba(212,168,67,0.08); border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .ci-icon svg { width: 15px; height: 15px; fill: var(--gold); }
-    .ci-label { font-size: 0.68rem; color: var(--dim); text-transform: uppercase; letter-spacing: 0.06em; }
-    .ci-text { font-size: 0.95rem; }
-
-    /* Footer */
-    footer {
-      text-align: center; padding: 1.5rem;
-      font-size: 0.72rem; color: var(--dim);
-      border-top: 1px solid var(--card-border);
-      position: relative; z-index: 50;
-      background: rgba(5,5,16,0.95);
-    }
-
-    /* Fade in */
-    .fade-in {
-      opacity: 0; transform: translateY(16px);
-      transition: opacity 0.5s ease, transform 0.5s ease;
-    }
-    .fade-in.visible { opacity: 1; transform: translateY(0); }
-  </style>
+@media(max-width:600px){
+  .sun-w{width:160px;height:160px}
+  .p-jupiter{width:60px;height:60px}
+  .p-saturn-w{width:85px;height:55px}.p-saturn{width:45px;height:45px}.p-saturn-ring{width:85px;height:20px;border-width:5px}
+  .orbit-line{width:40px}.orbit-line.wide{width:60px}.orbit-line.xwide{width:80px}
+}
+</style>
 </head>
 <body>
 
-<!-- Fixed space background -->
-<div class="space-bg"></div>
+<canvas id="stars"></canvas>
 
-<!-- Planet hotspots layer — fixed over the bg image -->
-<div class="planets-layer" id="planets-layer">
-  <a href="#nap" class="planet" style="left:3%;top:10%;width:7%;height:62%"><span class="tip">☀ Bemutatkozás</span></a>
-  <a href="#merkur" class="planet" style="left:13.2%;top:38%;width:2.4%;height:10%"><span class="tip">Merkúr — Nyelvoktatás</span></a>
-  <a href="#venusz" class="planet" style="left:17.2%;top:31%;width:3%;height:14%"><span class="tip">Vénusz — Fordítás</span></a>
-  <a href="#fold" class="planet" style="left:21.5%;top:33%;width:3.2%;height:14%"><span class="tip">Föld — Rólam</span></a>
-  <a href="#mars" class="planet" style="left:26.8%;top:38%;width:2.4%;height:10%"><span class="tip">Mars — Zongora</span></a>
-  <a href="#jupiter" class="planet" style="left:34%;top:20%;width:7.5%;height:32%"><span class="tip">Jupiter — Egyetemes Jogok</span></a>
-  <a href="#szaturnusz" class="planet" style="left:47%;top:24%;width:9.5%;height:28%"><span class="tip">Szaturnusz — Dokumentumok</span></a>
-  <a href="#uranusz" class="planet" style="left:63%;top:34%;width:4%;height:16%"><span class="tip">Uránusz — Kapcsolat</span></a>
-  <a href="#neptunusz" class="planet" style="left:72%;top:35%;width:3.5%;height:14%"><span class="tip">Neptunusz — Kiadványok</span></a>
-  <a href="#pluto" class="planet" style="left:80.5%;top:40%;width:2%;height:8%"><span class="tip">Plútó — Elérhetőség</span></a>
+<!-- BACK BUTTON -->
+<button class="back-btn" id="backBtn" onclick="closeSub()">
+  <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+  Vissza
+</button>
+
+<!-- ========== SOLAR SYSTEM VIEW ========== -->
+<div id="solar">
+  <div class="orbit-track">
+
+    <!-- SUN -->
+    <div class="slot" onclick="openSub('nap')">
+      <span class="tip">☀ Nap — Bemutatkozás</span>
+      <div class="sun-w">
+        <div class="sun-corona"></div>
+        <div class="sun-plasma"></div>
+        <div class="sun-core"></div>
+        <div class="sun-flare"></div>
+        <div class="sun-flare"></div>
+        <div class="sun-flare"></div>
+      </div>
+      <span class="click-hint">Kattints</span>
+    </div>
+
+    <div class="orbit-line"></div>
+
+    <!-- MERCURY -->
+    <div class="slot" onclick="openSub('merkur')">
+      <span class="tip">☿ Merkúr — Nyelvoktatás</span>
+      <div class="p-mercury"></div>
+      <span class="click-hint">Kattints</span>
+    </div>
+
+    <div class="orbit-line"></div>
+
+    <!-- VENUS -->
+    <div class="slot" onclick="openSub('venusz')">
+      <span class="tip">♀ Vénusz — Fordítás</span>
+      <div class="p-venus"></div>
+      <span class="click-hint">Kattints</span>
+    </div>
+
+    <div class="orbit-line"></div>
+
+    <!-- EARTH -->
+    <div class="slot" onclick="openSub('fold')">
+      <span class="tip">🌍 Föld — Rólam</span>
+      <div class="p-earth"></div>
+      <span class="click-hint">Kattints</span>
+    </div>
+
+    <div class="orbit-line"></div>
+
+    <!-- MARS -->
+    <div class="slot" onclick="openSub('mars')">
+      <span class="tip">♂ Mars — Zongora</span>
+      <div class="p-mars"></div>
+      <span class="click-hint">Kattints</span>
+    </div>
+
+    <div class="orbit-line wide"></div>
+
+    <!-- JUPITER -->
+    <div class="slot" onclick="openSub('jupiter')">
+      <span class="tip">♃ Jupiter — Egyetemes Jogok</span>
+      <div class="p-jupiter"></div>
+      <span class="click-hint">Kattints</span>
+    </div>
+
+    <div class="orbit-line wide"></div>
+
+    <!-- SATURN -->
+    <div class="slot" onclick="openSub('szaturnusz')">
+      <span class="tip">♄ Szaturnusz — Dokumentumok</span>
+      <div class="p-saturn-w"><div class="p-saturn-ring"></div><div class="p-saturn"></div></div>
+      <span class="click-hint">Kattints</span>
+    </div>
+
+    <div class="orbit-line xwide"></div>
+
+    <!-- URANUS -->
+    <div class="slot" onclick="openSub('uranusz')">
+      <span class="tip">♅ Uránusz — Kapcsolat</span>
+      <div class="p-uranus"></div>
+      <span class="click-hint">Kattints</span>
+    </div>
+
+    <div class="orbit-line xwide"></div>
+
+    <!-- NEPTUNE -->
+    <div class="slot" onclick="openSub('neptunusz')">
+      <span class="tip">♆ Neptunusz — A Tudás Hatalom</span>
+      <div class="p-neptune"></div>
+      <span class="click-hint">Kattints</span>
+    </div>
+
+    <div class="orbit-line xwide"></div>
+
+    <!-- PLUTO -->
+    <div class="slot" onclick="openSub('pluto')">
+      <span class="tip">♇ Plútó — Elérhetőség</span>
+      <div class="p-pluto"></div>
+      <span class="click-hint">Kattints</span>
+    </div>
+
+    <!-- extra padding at end -->
+    <div style="width:6vw;flex-shrink:0"></div>
+  </div>
 </div>
 
-<!-- NAV -->
-<nav>
-  <div class="nav-inner">
-    <a href="#" class="nav-name">Urr Nagy Kálmán</a>
-    <button class="menu-toggle" aria-label="Menü" onclick="document.querySelector('.nav-links').classList.toggle('open')">
-      <span></span><span></span><span></span>
-    </button>
-    <div class="nav-links">
-      <a href="#nap">Bemutatkozás</a>
-      <a href="#merkur">Szolgáltatások</a>
-      <a href="#jupiter">Egyetemes Jogok</a>
-      <a href="#uranusz">Kapcsolat</a>
-    </div>
-  </div>
-</nav>
+<!-- TITLE -->
+<div class="solar-title" id="solarTitle">
+  <h1>Urr Nagy <span>Kálmán</span></h1>
+  <p>Kattints egy bolygóra · Görgess oldalra</p>
+</div>
 
-<!-- HERO -->
-<header class="hero">
-  <div class="hero-content">
-    <h1>Urr Nagy <span>Kálmán</span></h1>
-    <p class="sub">A Tudás Hatalom</p>
-    <p class="hint">Kattints egy bolygóra, vagy görgess lejjebb</p>
-    <a href="#nap" class="scroll-arrow">&#9662;</a>
-  </div>
-</header>
+<!-- Scroll arrows -->
+<div class="scroll-arrows" id="scrollHint"><div></div><div></div><div></div></div>
 
-<!-- CONTENT — scrollable cards over space bg -->
-<div class="content-wrap">
+<!-- ========== SUBPAGES ========== -->
 
-  <!-- ☀ NAP — BEMUTATKOZÁS -->
-  <section id="nap">
-    <div class="card fade-in">
-      <div class="card-header">
-        <span class="card-planet">☀️</span>
-        <h2>Bemutatkozás <small>Nap</small></h2>
-      </div>
-      <div class="card-line"></div>
-      <div class="intro-flex">
-        <img src="kalman_nagy_urr.jpg" alt="Urr Nagy Kálmán" class="intro-portrait">
-        <div>
-          <p>Urr Nagy Kálmán vagyok. 18 évig éltem az Egyesült Államokban, így az angol nyelvtudásom anyanyelvi szintű. A szókincsem mintegy <strong>320 000 szót, kifejezést és szófordulatot</strong> ölel fel.</p>
-          <p>Teljesen folyékonyan beszélek angolul és magyarul. Bármilyen szöveget képes vagyok szinkronban tolmácsolni mindkét nyelven.</p>
-          <div class="info-box">
-            <strong>Tapasztalat:</strong> 18 év az USA-ban<br>
-            <strong>Nyelvek:</strong> Angol (anyanyelvi), Magyar
-          </div>
-        </div>
+<!-- NAP -->
+<div class="subpage" id="sub-nap">
+  <div class="subpage-inner"><div class="subpage-card sp">
+    <h2>Bemutatkozás <small>☀ Nap — A Naprendszer szíve</small></h2>
+    <div class="line"></div>
+    <div class="iflex">
+      <img src="kalman_nagy_urr.jpg" alt="Urr Nagy Kálmán" class="iport">
+      <div>
+        <p>Urr Nagy Kálmán vagyok. <strong>18 évig éltem az Egyesült Államokban</strong>, így az angol nyelvtudásom anyanyelvi szintű. A szókincsem mintegy 320 000 szót, kifejezést és szófordulatot ölel fel.</p>
+        <p>Teljesen folyékonyan beszélek angolul és magyarul. Bármilyen szöveget képes vagyok szinkronban tolmácsolni mindkét nyelven, és fordítást is vállalok mindkét irányban.</p>
+        <p>Szakterületeim: jog, kereskedelem, üzleti élet, emberi jogok, diplomácia, képzőművészet, tudomány, történelem, politika, vallás és katonai ügyek.</p>
       </div>
     </div>
-  </section>
+    <div class="ib"><strong>Tapasztalat:</strong> 18 év az USA-ban · <strong>Nyelvek:</strong> Angol (anyanyelvi), Magyar</div>
+  </div></div>
+</div>
 
-  <!-- ☿ MERKÚR — NYELVOKTATÁS -->
-  <section id="merkur">
-    <div class="card fade-in">
-      <div class="card-header">
-        <span class="card-planet">🪨</span>
-        <h2>Angol nyelvoktatás <small>Merkúr</small></h2>
-      </div>
-      <div class="card-line"></div>
-      <p>Egyéni és csoportos (max. 3–4 fő) angol–magyar és magyar–angol nyelvoktatás alap szinttől az <strong>anyanyelvi szintig</strong>.</p>
-      <p>Helyszínek: <strong>Nagykanizsa, Keszthely, Zalaegerszeg</strong>. Zala megyében csak nálunk!</p>
-      <p><em>„6 év anyagát 3 hónap alatt elsajátíthatod, bármilyen nyelvvizsgával, bármilyen fokon!"</em></p>
-      <p>Nyelvvizsgára felkészítés, bármilyen fokon. Biztos nyelvtudást csak az adhat, aki — mint én — nagyon sok évet töltött angol nyelvterületen.</p>
-      <div class="info-box">
-        <strong>Ne feledd:</strong> Aki angolul tud, azé a világ!
-      </div>
+<!-- MERKÚR -->
+<div class="subpage" id="sub-merkur">
+  <div class="subpage-inner"><div class="subpage-card sp">
+    <h2>Angol nyelvoktatás <small>☿ Merkúr</small></h2>
+    <div class="line"></div>
+    <p>Egyéni és csoportos (max. 3–4 fő) angol–magyar és magyar–angol nyelvoktatás alap szinttől az <strong>anyanyelvi szintig</strong>.</p>
+    <p>Helyszínek: <strong>Nagykanizsa, Keszthely, Zalaegerszeg</strong>. Zala megyében csak nálunk!</p>
+    <p><em>„6 év anyagát 3 hónap alatt elsajátíthatod, bármilyen nyelvvizsgával, bármilyen fokon!"</em></p>
+    <p>Biztos nyelvtudást csak az adhat, aki — mint én — nagyon sok évet (18) töltött angol nyelvterületen.</p>
+    <p>Minden növendék automatikusan angolnyelv klubtaggá válik! Minden este 1 óra angolnyelvű társalgás.</p>
+    <div class="ib"><strong>Ne feledd:</strong> Aki angolul tud, azé a világ!</div>
+  </div></div>
+</div>
+
+<!-- VÉNUSZ -->
+<div class="subpage" id="sub-venusz">
+  <div class="subpage-inner"><div class="subpage-card sp">
+    <h2>Fordítás és tolmácsolás <small>♀ Vénusz</small></h2>
+    <div class="line"></div>
+    <p>Szinkrontolmácsolás, valamint bármilyen szakmai fordítás angol–magyar és magyar–angol irányban.</p>
+    <p>Szakterületek: <strong>jogi, gazdasági, műszaki, mezőgazdasági, irodalmi, történelmi, művészeti, orvosi, tudományos</strong> és bármilyen EU-s dokumentum.</p>
+    <p>Bármely szöveg elkészíthető ugyanazon a napon, maximum 25 oldal terjedelemig. Diplomáciai ügyekben is jártas vagyok.</p>
+    <div class="ib"><strong>Kapcsolat:</strong> +36 30 245 5797</div>
+  </div></div>
+</div>
+
+<!-- FÖLD -->
+<div class="subpage" id="sub-fold">
+  <div class="subpage-inner"><div class="subpage-card sp">
+    <h2>Rólam <small>🌍 Föld — About me</small></h2>
+    <div class="line"></div>
+    <p>My name is <strong>Kálmán Nagy Urr</strong>. My English is native-like because I used to live in the U.S. for 18 years.</p>
+    <p>This book contains 320,000 words, phrases and expressions; I can say that I am quite familiar with it! (I am also a classical pianist.)</p>
+    <p>I am totally fluent in English and Hungarian. I can synchronize anything from both languages. I also do translations from English to Hungarian and vice versa: any text can be done on same day but not more than 25 pages.</p>
+    <p>My prices are best anywhere! I am specialized on <strong>legal issues, trade, business and human rights</strong>: furthermore I am totally fluent in fine arts, science, history, politics, religion, military etc. I also am highly skilled in diplomatic matters.</p>
+    <p>Try me out and you will see that you made the right choice!</p>
+    <div class="ib"><strong>Cím:</strong> Sugár út 14., 8800 Nagykanizsa, Hungary · <strong>Tel:</strong> +36 30 245 5797</div>
+  </div></div>
+</div>
+
+<!-- MARS -->
+<div class="subpage" id="sub-mars">
+  <div class="subpage-inner"><div class="subpage-card sp">
+    <h2>Klasszikus zongoraoktatás <small>♂ Mars</small></h2>
+    <div class="line"></div>
+    <p>Színvonalas <strong>klasszikus zongoraoktatás</strong>, kizárólag egyéni formában, minden szinten.</p>
+    <p>A zenei képzés párhuzamosan is folytatható a nyelvtanulással. Minden növendék automatikusan angolnyelv klubtaggá válik!</p>
+    <p>Angolnyelvű társalgás, valamint klasszikus zongorakoncertek — csak klubtagok számára.</p>
+    <div class="ib"><strong>Az angolnyelv, a klasszikus zongora és az Egyetemes Jogok támogatója.</strong></div>
+  </div></div>
+</div>
+
+<!-- JUPITER -->
+<div class="subpage" id="sub-jupiter">
+  <div class="subpage-inner"><div class="subpage-card sp">
+    <h2>Egyetemes Jogok <small>♃ Jupiter — 11 kötet</small></h2>
+    <div class="line"></div>
+    <p>Az Egyetemes Jogok sorozat 11 kötetből áll — szabadon letölthető. Az én általam írt könyv az egyetemes jogokról.</p>
+    <div class="pgrid">
+      <a class="pdfl" href="01-egy-gonosz-birodalom.pdf" target="_blank"><div class="pico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg></div><div><div class="pfn">1. Egy gonosz birodalom</div><div class="pfm">PDF · 2013</div></div></a>
+      <a class="pdfl" href="02-teremtes-II.pdf" target="_blank"><div class="pico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg></div><div><div class="pfn">2. Teremtés II</div><div class="pfm">PDF · 2013</div></div></a>
+      <a class="pdfl" href="03-egyesult-magyarorszag-alkotmanya.pdf" target="_blank"><div class="pico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg></div><div><div class="pfn">3. Egyesült Magyarország Alkotmánya</div><div class="pfm">PDF · 2013</div></div></a>
+      <a class="pdfl" href="04-egyesult-europa-alkotmanya.pdf" target="_blank"><div class="pico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg></div><div><div class="pfn">4. Egyesült Európa Alkotmánya</div><div class="pfm">PDF · 2013</div></div></a>
+      <a class="pdfl" href="05-egyesult-amerika-alkotmanya.pdf" target="_blank"><div class="pico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg></div><div><div class="pfn">5. Egyesült Amerika Alkotmánya</div><div class="pfm">PDF · 2013</div></div></a>
+      <a class="pdfl" href="06-egyesult-azsia-alkotmanya.pdf" target="_blank"><div class="pico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg></div><div><div class="pfn">6. Egyesült Ázsia Alkotmánya</div><div class="pfm">PDF · 2013</div></div></a>
+      <a class="pdfl" href="07-egyesult-ausztralia-alkotmanya.pdf" target="_blank"><div class="pico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg></div><div><div class="pfn">7. Egyesült Ausztrália Alkotmánya</div><div class="pfm">PDF · 2013</div></div></a>
+      <a class="pdfl" href="08-egyesult-afrika-alkotmanya.pdf" target="_blank"><div class="pico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg></div><div><div class="pfn">8. Egyesült Afrika Alkotmánya</div><div class="pfm">PDF · 2013</div></div></a>
+      <a class="pdfl" href="09-egyesult-oceania-alkotmanya.pdf" target="_blank"><div class="pico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg></div><div><div class="pfn">9. Egyesült Óceánia Alkotmánya</div><div class="pfm">PDF · 2013</div></div></a>
+      <a class="pdfl" href="10-egyesult-fold-alkotmanya.pdf" target="_blank"><div class="pico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg></div><div><div class="pfn">10. Egyesült Föld Alkotmánya</div><div class="pfm">PDF · 2013</div></div></a>
+      <a class="pdfl" href="11-egyesult-bolygok-alkotmanya.pdf" target="_blank"><div class="pico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg></div><div><div class="pfn">11. Egyesült Bolygók Alkotmánya</div><div class="pfm">PDF · 2013</div></div></a>
     </div>
-  </section>
+  </div></div>
+</div>
 
-  <!-- ♀ VÉNUSZ — FORDÍTÁS -->
-  <section id="venusz">
-    <div class="card fade-in">
-      <div class="card-header">
-        <span class="card-planet">🌕</span>
-        <h2>Fordítás és tolmácsolás <small>Vénusz</small></h2>
-      </div>
-      <div class="card-line"></div>
-      <p>Szinkrontolmácsolás, valamint bármilyen szakmai fordítás angol–magyar és magyar–angol irányban.</p>
-      <p>Szakterületek: <strong>jogi, gazdasági, műszaki, mezőgazdasági, irodalmi, történelmi, művészeti, orvosi, tudományos</strong> és bármilyen EU-s dokumentum.</p>
-      <p>Bármely szöveg elkészíthető ugyanazon a napon, maximum 25 oldal terjedelemig. A diplomatikai ügyekben is jártasságot szerzett.</p>
-      <div class="info-box">
-        <strong>Kapcsolat:</strong> +36 30 245 5797
-      </div>
+<!-- SZATURNUSZ -->
+<div class="subpage" id="sub-szaturnusz">
+  <div class="subpage-inner"><div class="subpage-card sp">
+    <h2>Egyéb dokumentumok <small>♄ Szaturnusz</small></h2>
+    <div class="line"></div>
+    <div class="pgrid">
+      <a class="pdfl" href="angol-nyelvkonyv.pdf" target="_blank"><div class="pico b"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg></div><div><div class="pfn">Angol nyelvkönyv (minta)</div><div class="pfm">PDF · 2017</div></div></a>
+      <a class="pdfl" href="jogeros-vegzes.pdf" target="_blank"><div class="pico b"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg></div><div><div class="pfn">Jogerős végzés</div><div class="pfm">PDF</div></div></a>
     </div>
-  </section>
+  </div></div>
+</div>
 
-  <!-- 🌍 FÖLD — RÓLAM -->
-  <section id="fold">
-    <div class="card fade-in">
-      <div class="card-header">
-        <span class="card-planet">🌍</span>
-        <h2>Rólam <small>Föld</small></h2>
-      </div>
-      <div class="card-line"></div>
-      <p>My name is Kálmán Nagy Urr. My English is native-like because I used to live in the U.S. for 18 years.</p>
-      <p>I am totally fluent in English and Hungarian. I can synchronize anything from both languages. I also do translations from English to Hungarian and vice versa.</p>
-      <p>I am specialized in <strong>legal issues, trade, business and human rights</strong>. Furthermore, I am totally fluent in fine arts, science, history, politics, religion, military etc. I am also highly skilled in diplomatic matters.</p>
-      <div class="info-box">
-        <strong>Cím:</strong> Sugár út 14., 8800 Nagykanizsa, Hungary<br>
-        <strong>Telefon:</strong> +36 30 245 5797
-      </div>
+<!-- URÁNUSZ -->
+<div class="subpage" id="sub-uranusz">
+  <div class="subpage-inner"><div class="subpage-card sp">
+    <h2>Kapcsolat <small>♅ Uránusz</small></h2>
+    <div class="line"></div>
+    <p>Keressen bizalommal angol nyelvoktatás, fordítás, tolmácsolás vagy zongoraoktatás ügyében.</p>
+    <div class="crow">
+      <div class="citem"><div class="cico"><svg viewBox="0 0 24 24"><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.46.57 3.58a1 1 0 0 1-.24 1.01l-2.21 2.2z"/></svg></div><div><div class="clbl">Telefon</div><div class="ctxt">+36 30 245 5797</div></div></div>
+      <div class="citem"><div class="cico"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg></div><div><div class="clbl">Cím</div><div class="ctxt">Sugár út 14., 8800 Nagykanizsa</div></div></div>
     </div>
-  </section>
+  </div></div>
+</div>
 
-  <!-- ♂ MARS — ZONGORA -->
-  <section id="mars">
-    <div class="card fade-in">
-      <div class="card-header">
-        <span class="card-planet">🔴</span>
-        <h2>Klasszikus zongoraoktatás <small>Mars</small></h2>
-      </div>
-      <div class="card-line"></div>
-      <p>Színvonalas <strong>klasszikus zongoraoktatás</strong>, kizárólag egyéni formában, minden szinten.</p>
-      <p>A zenei képzés párhuzamosan is folytatható a nyelvtanulással. Minden növendék automatikusan angolnyelv klubtaggá válik!</p>
-      <p>Angolnyelvű társalgás, valamint klasszikus zongorakoncertek — csak klubtagok számára.</p>
-      <div class="info-box">
-        <strong>Az angolnyelv, a klasszikus zongora és az Egyetemes Jogok támogatója.</strong>
-      </div>
-    </div>
-  </section>
+<!-- NEPTUNUSZ -->
+<div class="subpage" id="sub-neptunusz">
+  <div class="subpage-inner"><div class="subpage-card sp" style="text-align:center">
+    <h2>A Tudás Hatalom <small>♆ Neptunusz</small></h2>
+    <div class="line" style="margin-left:auto;margin-right:auto"></div>
+    <p style="font-family:'Cinzel',serif;font-size:1.3rem;color:#fff;letter-spacing:.05em">„Aki angolul tud, azé a világ!"</p>
+    <p>Minden kedvezményt megkapsz, amire vágysz. Természetesen részletfizetés megoldható.</p>
+  </div></div>
+</div>
 
-  <!-- ♃ JUPITER — EGYETEMES JOGOK -->
-  <section id="jupiter">
-    <div class="card fade-in">
-      <div class="card-header">
-        <span class="card-planet">🟤</span>
-        <h2>Egyetemes Jogok <small>Jupiter</small></h2>
-      </div>
-      <div class="card-line"></div>
-      <p>Az Egyetemes Jogok sorozat 11 kötetből áll. Az én általam írt könyv az egyetemes jogokról — szabadon letölthető.</p>
-      <div class="pdf-grid" style="margin-top:1rem">
-        <a class="pdf-link" href="01-egy-gonosz-birodalom.pdf" target="_blank"><div class="pdf-ico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg></div><div><div class="pdf-name">1. Egy gonosz birodalom</div><div class="pdf-meta">PDF · 2013</div></div></a>
-        <a class="pdf-link" href="02-teremtes-II.pdf" target="_blank"><div class="pdf-ico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg></div><div><div class="pdf-name">2. Teremtés II</div><div class="pdf-meta">PDF · 2013</div></div></a>
-        <a class="pdf-link" href="03-egyesult-magyarorszag-alkotmanya.pdf" target="_blank"><div class="pdf-ico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg></div><div><div class="pdf-name">3. Egyesült Magyarország Alkotmánya</div><div class="pdf-meta">PDF · 2013</div></div></a>
-        <a class="pdf-link" href="04-egyesult-europa-alkotmanya.pdf" target="_blank"><div class="pdf-ico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg></div><div><div class="pdf-name">4. Egyesült Európa Alkotmánya</div><div class="pdf-meta">PDF · 2013</div></div></a>
-        <a class="pdf-link" href="05-egyesult-amerika-alkotmanya.pdf" target="_blank"><div class="pdf-ico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg></div><div><div class="pdf-name">5. Egyesült Amerika Alkotmánya</div><div class="pdf-meta">PDF · 2013</div></div></a>
-        <a class="pdf-link" href="06-egyesult-azsia-alkotmanya.pdf" target="_blank"><div class="pdf-ico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg></div><div><div class="pdf-name">6. Egyesült Ázsia Alkotmánya</div><div class="pdf-meta">PDF · 2013</div></div></a>
-        <a class="pdf-link" href="07-egyesult-ausztralia-alkotmanya.pdf" target="_blank"><div class="pdf-ico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg></div><div><div class="pdf-name">7. Egyesült Ausztrália Alkotmánya</div><div class="pdf-meta">PDF · 2013</div></div></a>
-        <a class="pdf-link" href="08-egyesult-afrika-alkotmanya.pdf" target="_blank"><div class="pdf-ico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg></div><div><div class="pdf-name">8. Egyesült Afrika Alkotmánya</div><div class="pdf-meta">PDF · 2013</div></div></a>
-        <a class="pdf-link" href="09-egyesult-oceania-alkotmanya.pdf" target="_blank"><div class="pdf-ico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg></div><div><div class="pdf-name">9. Egyesült Óceánia Alkotmánya</div><div class="pdf-meta">PDF · 2013</div></div></a>
-        <a class="pdf-link" href="10-egyesult-fold-alkotmanya.pdf" target="_blank"><div class="pdf-ico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg></div><div><div class="pdf-name">10. Egyesült Föld Alkotmánya</div><div class="pdf-meta">PDF · 2013</div></div></a>
-        <a class="pdf-link" href="11-egyesult-bolygok-alkotmanya.pdf" target="_blank"><div class="pdf-ico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg></div><div><div class="pdf-name">11. Egyesült Bolygók Alkotmánya</div><div class="pdf-meta">PDF · 2013</div></div></a>
-      </div>
-    </div>
-  </section>
-
-  <!-- ♄ SZATURNUSZ — EGYÉB DOKUMENTUMOK -->
-  <section id="szaturnusz">
-    <div class="card fade-in">
-      <div class="card-header">
-        <span class="card-planet">🪐</span>
-        <h2>Egyéb dokumentumok <small>Szaturnusz</small></h2>
-      </div>
-      <div class="card-line"></div>
-      <div class="pdf-grid">
-        <a class="pdf-link" href="angol-nyelvkonyv.pdf" target="_blank"><div class="pdf-ico blue"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg></div><div><div class="pdf-name">Angol nyelvkönyv (minta)</div><div class="pdf-meta">PDF · 2017</div></div></a>
-        <a class="pdf-link" href="jogeros-vegzes.pdf" target="_blank"><div class="pdf-ico blue"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg></div><div><div class="pdf-name">Jogerős végzés</div><div class="pdf-meta">PDF</div></div></a>
-      </div>
-    </div>
-  </section>
-
-  <!-- ♅ URÁNUSZ — KAPCSOLAT -->
-  <section id="uranusz">
-    <div class="card fade-in">
-      <div class="card-header">
-        <span class="card-planet">🔵</span>
-        <h2>Kapcsolat <small>Uránusz</small></h2>
-      </div>
-      <div class="card-line"></div>
-      <p>Keressen bizalommal angol nyelvoktatás, fordítás, tolmácsolás vagy zongoraoktatás ügyében.</p>
-      <div class="contact-row" style="margin-top:1rem">
-        <div class="contact-item">
-          <div class="ci-icon"><svg viewBox="0 0 24 24"><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.46.57 3.58a1 1 0 0 1-.24 1.01l-2.21 2.2z"/></svg></div>
-          <div><div class="ci-label">Telefon</div><div class="ci-text">+36 30 245 5797</div></div>
-        </div>
-        <div class="contact-item">
-          <div class="ci-icon"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg></div>
-          <div><div class="ci-label">Cím</div><div class="ci-text">Sugár út 14., 8800 Nagykanizsa</div></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ♆ NEPTUNUSZ — "A TUDÁS HATALOM" -->
-  <section id="neptunusz">
-    <div class="card fade-in" style="text-align:center">
-      <div class="card-header" style="justify-content:center">
-        <span class="card-planet">🔷</span>
-        <h2>A Tudás Hatalom <small>Neptunusz</small></h2>
-      </div>
-      <div class="card-line" style="margin:0.6rem auto 1rem"></div>
-      <p style="font-family:'Cinzel',serif; font-size:1.1rem; color:#fff; letter-spacing:0.05em;">
-        „Aki angolul tud, azé a világ!"
-      </p>
-      <p style="margin-top:0.5rem">
-        Minden kedvezményt megkapsz, amire vágysz. Természetesen részletfizetés megoldható.
-      </p>
-    </div>
-  </section>
-
-  <!-- ♇ PLÚTÓ -->
-  <section id="pluto">
-    <div class="card fade-in" style="text-align:center; padding: 1.5rem;">
-      <span class="card-planet">⚪</span>
-      <h2 style="font-family:'Cinzel',serif; font-size:1rem; color:#fff; margin:0.3rem 0; letter-spacing:0.06em;">Urr Nagy Kálmán</h2>
-      <p style="font-size:0.85rem; color:var(--dim);">06-30-245-5797 · Nagykanizsa</p>
-    </div>
-  </section>
-
-</div><!-- /content-wrap -->
-
-<footer>&copy; 2024 Urr Nagy Kálmán. Minden jog fenntartva.</footer>
+<!-- PLÚTÓ -->
+<div class="subpage" id="sub-pluto">
+  <div class="subpage-inner"><div class="subpage-card sp" style="text-align:center">
+    <h2>Urr Nagy Kálmán <small>♇ Plútó — A Naprendszer peremén</small></h2>
+    <div class="line" style="margin-left:auto;margin-right:auto"></div>
+    <p>06-30-245-5797 · Sugár út 14., 8800 Nagykanizsa</p>
+    <p style="font-size:.88rem;color:var(--dim);margin-top:.5rem">Az angolnyelv, a klasszikus zongora és az Egyetemes Jogok támogatója.</p>
+  </div></div>
+</div>
 
 <script>
-  // Mobile menu
-  document.querySelectorAll('.nav-links a').forEach(a => {
-    a.addEventListener('click', () => document.querySelector('.nav-links').classList.remove('open'));
-  });
+// ===== STARFIELD =====
+const C=document.getElementById('stars'),X=C.getContext('2d');let W,H;
+function RS(){W=C.width=innerWidth;H=C.height=innerHeight}
+addEventListener('resize',RS);RS();
+const S=[],ML=[];
+for(let i=0;i<500;i++)S.push({x:Math.random()*3000,y:Math.random()*2000,r:Math.random()*1.2+.3,a:Math.random()*.7+.3,p:Math.random()*6.28});
+for(let i=0;i<350;i++){const t=Math.random(),cx=t*3000,cy=t*1200+400;ML.push({x:cx+(Math.random()-.5)*300,y:cy+(Math.random()-.5)*150,r:Math.random()*.7+.2,a:Math.random()*.2+.05})}
+let T=0;
+function DR(){X.clearRect(0,0,W,H);T+=.016;
+const g=X.createLinearGradient(0,H*.2,W,H*.75);
+g.addColorStop(0,'rgba(60,40,100,0)');g.addColorStop(.4,'rgba(50,40,90,.04)');g.addColorStop(.5,'rgba(70,55,120,.06)');g.addColorStop(.6,'rgba(50,40,90,.04)');g.addColorStop(1,'rgba(60,40,100,0)');
+X.fillStyle=g;X.fillRect(0,0,W,H);
+ML.forEach(s=>{X.beginPath();X.arc((s.x%W+W)%W,(s.y%H+H)%H,s.r,0,6.28);X.fillStyle=`rgba(200,190,220,${s.a})`;X.fill()});
+S.forEach(s=>{const tw=s.a*(.6+.4*Math.sin(T*2+s.p));X.beginPath();X.arc((s.x%W+W)%W,(s.y%H+H)%H,s.r,0,6.28);X.fillStyle=`rgba(255,255,255,${tw})`;X.fill()});
+requestAnimationFrame(DR)}
+DR();
 
-  // Hide planets layer once user scrolls past hero
-  const pl = document.getElementById('planets-layer');
-  const observer = new IntersectionObserver(([e]) => {
-    pl.classList.toggle('hidden', !e.isIntersecting);
-  }, { threshold: 0.1 });
-  observer.observe(document.querySelector('.hero'));
+// ===== SUBPAGE LOGIC =====
+let currentSub = null;
+function openSub(id) {
+  if (currentSub) closeSub();
+  const el = document.getElementById('sub-' + id);
+  if (!el) return;
+  document.getElementById('solar').classList.add('hidden');
+  document.getElementById('solarTitle').style.opacity = '0';
+  document.getElementById('scrollHint').style.opacity = '0';
+  el.classList.add('active');
+  el.scrollTop = 0;
+  document.getElementById('backBtn').classList.add('show');
+  currentSub = el;
+}
+function closeSub() {
+  if (!currentSub) return;
+  currentSub.classList.remove('active');
+  document.getElementById('solar').classList.remove('hidden');
+  document.getElementById('solarTitle').style.opacity = '1';
+  document.getElementById('scrollHint').style.opacity = '';
+  document.getElementById('backBtn').classList.remove('show');
+  currentSub = null;
+}
+// ESC to close
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSub(); });
 
-  // Fade-in
-  const fadeObs = new IntersectionObserver((entries) => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); fadeObs.unobserve(e.target); } });
-  }, { threshold: 0.15 });
-  document.querySelectorAll('.fade-in').forEach(el => fadeObs.observe(el));
+// Hide scroll hint after first scroll
+document.getElementById('solar').addEventListener('scroll', function() {
+  document.getElementById('scrollHint').style.display = 'none';
+}, { once: true });
 </script>
 </body>
 </html>
